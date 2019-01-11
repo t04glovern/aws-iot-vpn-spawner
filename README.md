@@ -9,7 +9,7 @@ We also deploy and connect our AWS IoT Button via the Certificate Vending machin
 Pull down the repository locally to start with
 
 ```bash
-git clone https://github.com/t04glovern/aws-pptp-cloudformation.git
+git clone https://github.com/t04glovern/aws-iot-vpn-spawner.git
 ```
 
 We utilize [aws-pptp-cloudformation](https://github.com/t04glovern/aws-pptp-cloudformation) and therefore need to init the submodule in the project to use it.
