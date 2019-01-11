@@ -8,6 +8,7 @@ import re
 # create the client outside of the handler
 region_name = os.environ['REGION_NAME']
 cf_client = boto3.client('cloudformation', region_name=region_name)
+sns_client = boto3.client('sns', region_name=region_name)
 
 # Get Stack details
 stack_name          = os.environ['STACK_NAME']
@@ -16,6 +17,7 @@ stack_s3_key        = os.environ['STACK_S3_KEY']
 stack_instance_type = os.environ['STACK_INSTANCE_TYPE']
 stack_dns_primary   = os.environ['STACK_DNS_PRIMARY']
 stack_dns_secondary = os.environ['STACK_DNS_SECONDARY']
+sns_topic           = os.environ['SNS_TOPIC']
 
 def _to_env(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -73,6 +75,12 @@ def lambda_handler(event, context):
     out['VPN_USERNAME'] = vpn_username
     out['VPN_PASSWORD'] = vpn_password
     out['VPN_PHRASE']   = vpn_password
-    print(json.dumps(out, indent=2))
+
+    print("Sending VPN details to " + sns_topic + "...")
+    res = sns_client.publish(
+        TargetArn=sns_topic,
+        Message=json.dumps({'default': json.dumps(out)}),
+        MessageStructure='json'
+    )
 
     return res

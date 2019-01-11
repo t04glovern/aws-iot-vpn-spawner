@@ -41,6 +41,10 @@ Parameters:
     Description: IoT Topic to monitor for action trigger
     Type: String
     Default: 'iotbutton/+'
+  VPNSubscriber:
+    Description: Email address to deliver VPN credentials to
+    Type: String
+    Default: 'tom@example.com'
 
 Resources:
   VPNStackCreationLambdaRole:
@@ -101,6 +105,7 @@ Resources:
           STACK_INSTANCE_TYPE: !Ref InstanceType
           STACK_DNS_PRIMARY: !Ref DNSServerPrimary
           STACK_DNS_SECONDARY: !Ref DNSServerSecondary
+          SNS_TOPIC: !Ref SNSVPNDetails
       Description: CloudFormation Stack Builder Lambda
       Handler: stack-builder.lambda_handler
       MemorySize: 128
@@ -137,6 +142,33 @@ Resources:
         AwsIotSqlVersion: 2016-03-23
         RuleDisabled: false
         Sql: !Sub 'SELECT * FROM "${IoTButtonTopic}"'
+
+  SNSVPNDetails:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: VPN Subscription Creds
+      Subscription:
+      - Endpoint: !Ref 'VPNSubscriber'
+        Protocol: email
+      TopicName: !Join ['-', [!Ref 'AWS::StackName', "vpn-creds"]]
+
+  SNSVPNDetailsPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Id: AlertTopicPolicy
+        Version: '2012-10-17'
+        Statement:
+        - Sid: iot-rule-sns-sub
+          Effect: Allow
+          Principal:
+            AWS: '*'
+          Action: sns:Publish
+          Resource: '*'
+          Condition:
+            StringEquals:
+              AWS:SourceOwner: !Ref AWS::AccountId
+      Topics: [!Ref 'SNSVPNDetails']
 
 Outputs:
   VPNStackCreationLambda:

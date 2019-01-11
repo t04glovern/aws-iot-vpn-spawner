@@ -34,5 +34,9 @@
     {
         "ParameterKey": "IoTButtonTopic",
         "ParameterValue": "iotbutton/+"
+    },
+    {
+        "ParameterKey": "VPNSubscriber",
+        "ParameterValue": "tom@example.com"
     }
 ]
