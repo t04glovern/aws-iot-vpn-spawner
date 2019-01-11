@@ -1,0 +1,38 @@
+[
+    {
+        "ParameterKey": "VPNStackName",
+        "ParameterValue": "iot-btn-pptp-vpn"
+    },
+    {
+        "ParameterKey": "LambdaCodeBucket",
+        "ParameterValue": "devopstar"
+    },
+    {
+        "ParameterKey": "LambdaCodeS3Key",
+        "ParameterValue": "resources/aws-iot-vpn-spawner/stack-builder.zip"
+    },
+    {
+        "ParameterKey": "CfStackCodeBucket",
+        "ParameterValue": "devopstar"
+    },
+    {
+        "ParameterKey": "CfStackCodeS3Key",
+        "ParameterValue": "resources/aws-iot-vpn-spawner/pptp-server.yaml"
+    },
+    {
+        "ParameterKey": "InstanceType",
+        "ParameterValue": "Standard.VPN-t2.micro"
+    },
+    {
+        "ParameterKey": "DNSServerPrimary",
+        "ParameterValue": "1.1.1.1"
+    },
+    {
+        "ParameterKey": "DNSServerSecondary",
+        "ParameterValue": "1.0.0.1"
+    },
+    {
+        "ParameterKey": "IoTButtonTopic",
+        "ParameterValue": "iotbutton/+"
+    }
+]

@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the DynamoDB Table and IoT Actions for consuming data from a topic
+Parameters:
+  VPNStackName:
+    Type: String
+    Default: iot-btn-pptp-vpn
+    Description: Name of the CloudFormation stack that should be deployed on button press
+  LambdaCodeBucket:
+    Description: Lambda Code Bucket Name
+    Type: String
+  LambdaCodeS3Key:
+    Description: Lambda S3 Key
+    Type: String
+  CfStackCodeBucket:
+    Description: CloudFormation Stack Bucket Name
+    Type: String
+  CfStackCodeS3Key:
+    Description: CloudFormation Stack S3 Key
+    Type: String
+  InstanceType:
+    Description: Instance Type
+    Type: String
+    Default: Standard.VPN-t2.micro
+    AllowedValues:
+    - Standard.VPN-t2.micro
+    - High.Speed.VPN-t2.medium
+    - Ultra.High.Speed.VPN-m3.xlarge
+  DNSServerPrimary:
+    Description: IPv4 Address for DNS server primary
+    Type: String
+    AllowedPattern: '((\d{1,3})\.){3}\d{1,3}'
+    ConstraintDescription: Must be a valid IPv4 address (e.g. 1.1.1.1)
+    Default: '1.1.1.1'
+  DNSServerSecondary:
+    Description: IPv4 Address for DNS server secondary
+    Type: String
+    AllowedPattern: '((\d{1,3})\.){3}\d{1,3}'
+    ConstraintDescription: Must be a valid IPv4 address (e.g. 1.0.0.1)
+    Default: '1.0.0.1'
+  IoTButtonTopic:
+    Description: IoT Topic to monitor for action trigger
+    Type: String
+    Default: 'iotbutton/+'
+
+Resources:
+  VPNStackCreationLambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: logs
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:*'
+                Resource: 'arn:aws:logs:*:*:*'
+        - PolicyName: cloudformation
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 'cloudformation:*'
+                Resource: '*'
+        - PolicyName: s3-vpn-code
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 's3:GetObject'
+                Resource: !Sub 'arn:aws:s3:::${CfStackCodeBucket}/${CfStackCodeS3Key}'
+        - PolicyName: ec2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 'ec2:*'
+                Resource: '*'
+
+  VPNStackCreationLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Environment:
+        Variables:
+          REGION_NAME: !Ref AWS::Region
+          STACK_NAME: !Ref VPNStackName
+          STACK_S3_BUCKET: !Ref CfStackCodeBucket
+          STACK_S3_KEY: !Ref CfStackCodeS3Key
+          STACK_INSTANCE_TYPE: !Ref InstanceType
+          STACK_DNS_PRIMARY: !Ref DNSServerPrimary
+          STACK_DNS_SECONDARY: !Ref DNSServerSecondary
+      Description: CloudFormation Stack Builder Lambda
+      Handler: stack-builder.lambda_handler
+      MemorySize: 128
+      Role: !GetAtt
+        - VPNStackCreationLambdaRole
+        - Arn
+      Runtime: python3.7
+      Timeout: 180
+      FunctionName: !Sub '${AWS::StackName}-cf-stack-builder'
+
+  VPNStackCreationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt
+        - VPNStackCreationLambda
+        - Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: iot.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+      SourceArn: !GetAtt
+        - IoTTopicRule
+        - Arn
+
+  IoTTopicRule:
+    Type: 'AWS::IoT::TopicRule'
+    Properties:
+      RuleName: IoTButtonVPNTrigger
+      TopicRulePayload:
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt
+                - VPNStackCreationLambda
+                - Arn
+        AwsIotSqlVersion: 2016-03-23
+        RuleDisabled: false
+        Sql: !Sub 'SELECT * FROM "${IoTButtonTopic}"'
+
+Outputs:
+  VPNStackCreationLambda:
+    Value: !Ref VPNStackCreationLambda
+    Description: VPN Stack Creation Lambda

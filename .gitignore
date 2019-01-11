@@ -1,0 +1,7 @@
+config/iot-setup.cfg
+config/*.crt
+config/*.key
+config/iot-keys.json
+
+aws-iot-action/stack-builder.zip
+aws-iot-action/venv

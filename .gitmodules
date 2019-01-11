@@ -1,0 +1,3 @@
+[submodule "aws-pptp-cloudformation"]
+	path = aws-pptp-cloudformation
+	url = git@github.com:t04glovern/aws-pptp-cloudformation.git
