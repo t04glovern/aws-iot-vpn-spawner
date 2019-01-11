@@ -147,7 +147,7 @@ aws s3 cp aws-pptp-cloudformation/pptp-server.yaml s3://devopstar/resources/aws-
 Make sure you edit your `aws-iot-action/iot-rule-params.json` to include your S3 paths if you aren't using mine. You also need to make sure you update your `IoTButtonTopic` parameter so that it matches your device ID (found on the back of the button)
 
 ```bash
-aws cloudformation update-stack --stack-name "devopstar-iot-rule" \
+aws cloudformation create-stack --stack-name "devopstar-iot-rule" \
     --template-body file://aws-iot-action/iot-rule.yaml \
     --parameters file://aws-iot-action/iot-rule-params.json \
     --capabilities CAPABILITY_IAM
