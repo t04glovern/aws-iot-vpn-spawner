@@ -86,10 +86,10 @@ def lambda_handler(event, context):
     msg += " | Pass / Phrase: "
     msg += out['VPN_PASSWORD']
     print("Sending msg: " + msg)
-    sns_client = boto3.client('sns', region_name=region_name)
     res = sns_client.publish(
         TopicArn=sns_topic,
         Message=msg
     )
+    print("SNS response: " + res)
 
-    return res
+    return msg

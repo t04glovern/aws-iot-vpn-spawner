@@ -89,6 +89,13 @@ Resources:
               - Effect: Allow
                 Action: 'ec2:*'
                 Resource: '*'
+        - PolicyName: sns-publish
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 'sns:Publish'
+                Resource: !Ref SNSVPNDetails
 
   VPNStackCreationLambda:
     Type: 'AWS::Lambda::Function'
