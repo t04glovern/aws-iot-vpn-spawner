@@ -78,7 +78,7 @@ def lambda_handler(event, context):
 
     print("Sending VPN details to " + sns_topic + "...")
     res = sns_client.publish(
-        TargetArn=sns_topic,
+        TopicArn=sns_topic,
         Message=json.dumps({'default': json.dumps(out)}),
         MessageStructure='json'
     )

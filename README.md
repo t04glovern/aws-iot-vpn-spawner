@@ -27,7 +27,7 @@ We need to deploy the [IoT Certificate vending machine](https://github.com/awsla
 aws s3 cp aws-iot-cvm/iot-cvm.zip s3://devopstar/resources/aws-iot-vpn-spawner/iot-cvm.zip
 ```
 
-This reference must be updated in the `cf/iot-cvm-params.json` parameters file else it will default to the version in my bucket. This is only applicable if you'd prefer to deploy your own.
+This reference must be updated in the `aws-iot-cvm/iot-cvm-params.json` parameters file else it will default to the version in my bucket. This is only applicable if you'd prefer to deploy your own.
 
 ```bash
 {
@@ -96,11 +96,11 @@ Place the outputs for each of the two fields below into new files in [config/](c
 * **config/iot-certificate.pem.crt**: certificatePem
 * **config/iot-private.pem.key**: keyPair.PrivateKey
 
-*Annoyingly you'll have to remove the newline delimiters with actual newlines. I usually use a `\\n` -> `\n` regualar expression find and replace in VSCode*
+*Annoyingly you'll have to remove the newline delimiters with actual newlines. I usually use a `\\n` -> `\n` regular expression find and replace in VSCode*
 
 ## AWS IoT Button Configure
 
-Hold the button down on your IoT Button for 5+ seconds until the Bluelight starts blinking. Connect to the WiFi Hostspot that your Button starts broadcasting
+Hold the button down on your IoT Button for 5+ seconds until the blue light starts blinking. Connect to the WiFi Host-spot that your Button starts broadcasting
 
 It should have an SSID like: `Button ConfigureME - GE3`. The Password is the last 8 digits of your DSN (on the back of the button or on the box it came in).
 
@@ -144,7 +144,7 @@ aws s3 cp aws-iot-action/stack-builder.zip s3://devopstar/resources/aws-iot-vpn-
 aws s3 cp aws-pptp-cloudformation/pptp-server.yaml s3://devopstar/resources/aws-iot-vpn-spawner/pptp-server.yaml
 ```
 
-Make sure you edit your `aws-iot-action/iot-rule-params.json` to include your S3 paths if you aren't using mine. You also need to make sure you update your `IoTButtonTopic` parameter so that it matches your device ID (found on the back of the button)
+Make sure you edit your `aws-iot-action/iot-rule-params.json` to include your S3 paths if you aren't using mine. You also need to make sure you update your `IoTButtonTopic` parameter so that it matches your device ID (found on the back of the button). The `VPNSubscriber` should be set to your email address that you want to receive notifications to about your newly created VPN.
 
 ```bash
 aws cloudformation create-stack --stack-name "devopstar-iot-rule" \
