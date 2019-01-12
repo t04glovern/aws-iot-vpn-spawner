@@ -77,10 +77,19 @@ def lambda_handler(event, context):
     out['VPN_PHRASE']   = vpn_password
 
     print("Sending VPN details to " + sns_topic + "...")
+    print("out: " + json.dumps(out))
+    msg = ''
+    msg += "VPN: "
+    msg += out['VPN_SERVER_ADDRESS']
+    msg += " | User: "
+    msg += out['VPN_USERNAME']
+    msg += " | Pass / Phrase: "
+    msg += out['VPN_PASSWORD']
+    print("Sending msg: " + msg)
+    sns_client = boto3.client('sns', region_name=region_name)
     res = sns_client.publish(
         TopicArn=sns_topic,
-        Message=json.dumps({'default': json.dumps(out)}),
-        MessageStructure='json'
+        Message=msg
     )
 
     return res

@@ -109,6 +109,7 @@ Resources:
       Description: CloudFormation Stack Builder Lambda
       Handler: stack-builder.lambda_handler
       MemorySize: 128
+      ReservedConcurrentExecutions: 1
       Role: !GetAtt
         - VPNStackCreationLambdaRole
         - Arn
